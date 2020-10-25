@@ -7,56 +7,26 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <TextView
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:text="开始录制"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:onClick="StartRecorder"/>
+
 
     <Button
-        android:id="@+id/button_control"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="mTextView"
-        tools:layout_editor_absoluteX="189dp"
-        tools:layout_editor_absoluteY="144dp" />
-
-    <Button
-        android:id="@+id/button_contro2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="off_btn"
-        tools:layout_editor_absoluteX="195dp"
-        tools:layout_editor_absoluteY="229dp" />
-
-    <RadioGroup
-        android:id="@+id/redio_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:layout_editor_absoluteX="78dp"
-        tools:layout_editor_absoluteY="297dp">
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="sd"
-            android:id="@+id/sd_button"/>
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="hd"
-            android:id="@+id/hd_button"/>
-    </RadioGroup>
-
-    <CheckBox
-        android:id="@+id/audio_check_box"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="CheckBox"
-        tools:layout_editor_absoluteX="61dp"
-        tools:layout_editor_absoluteY="488dp" />
+        android:text="停止录制"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:onClick="StopRecorder"/>
 
 
 </LinearLayout>

@@ -19,102 +19,56 @@ import java.util.Date;
 
 public class ScreenRecordService extends Service {
     private static final String TAG = "ScreenRecordingService";
+    /**
+     * 是否为标清视频
+     */
+    private boolean isVideoSd = false;
 
     private int mScreenWidth;
     private int mScreenHeight;
     private int mScreenDensity;
+
     private int mResultCode;
     private Intent mResultData;
-    /** 是否为标清视频 */
-    private boolean isVideoSd;
-    /** 是否开启音频录制 */
-    private boolean isAudio;
 
     private MediaProjection mMediaProjection;
     private MediaRecorder mMediaRecorder;
     private VirtualDisplay mVirtualDisplay;
 
+    public ScreenRecordService() {
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        // TODO: Return the communication channel to the service.
+        return null;
+    }
+
     @Override
     public void onCreate() {
-        // TODO Auto-generated method stub
         super.onCreate();
-        Log.i(TAG, "Service onCreate() is called");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // TODO Auto-generated method stub
-        Log.i(TAG, "Service onStartCommand() is called");
 
-        mResultCode = intent.getIntExtra("code", -1);
+        mResultCode = intent.getIntExtra("resultCode", 1);
         mResultData = intent.getParcelableExtra("data");
-        mScreenWidth = intent.getIntExtra("width", 720);
-        mScreenHeight = intent.getIntExtra("height", 1280);
-        mScreenDensity = intent.getIntExtra("density", 1);
-        isVideoSd = intent.getBooleanExtra("quality", true);
-        isAudio = intent.getBooleanExtra("audio", true);
+
+        getScreenBaseInfo();
 
         mMediaProjection = createMediaProjection();
         mMediaRecorder = createMediaRecorder();
         mVirtualDisplay = createVirtualDisplay(); // 必须在mediaRecorder.prepare() 之后调用，否则报错"fail to get surface"
+
         mMediaRecorder.start();
-
         return Service.START_NOT_STICKY;
-    }
-
-    private MediaProjection createMediaProjection() {
-        Log.i(TAG, "Create MediaProjection");
-        return ((MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE)).getMediaProjection(mResultCode, mResultData);
-    }
-
-    private MediaRecorder createMediaRecorder() {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-        Date curDate = new Date(System.currentTimeMillis());
-        String curTime = formatter.format(curDate).replace(" ", "");
-        String videoQuality = "HD";
-        if(isVideoSd) videoQuality = "SD";
-
-        Log.i(TAG, "Create MediaRecorder");
-        MediaRecorder mediaRecorder = new MediaRecorder();
-//  if(isAudio) mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        mediaRecorder.setOutputFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/" + videoQuality + curTime + ".mp4");
-        mediaRecorder.setVideoSize(mScreenWidth, mScreenHeight); //after setVideoSource(), setOutFormat()
-        mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264); //after setOutputFormat()
-//  if(isAudio) mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC); //after setOutputFormat()
-        int bitRate;
-        if(isVideoSd) {
-            mediaRecorder.setVideoEncodingBitRate(mScreenWidth * mScreenHeight);
-            mediaRecorder.setVideoFrameRate(30);
-            bitRate = mScreenWidth * mScreenHeight / 1000;
-        } else {
-            mediaRecorder.setVideoEncodingBitRate(5 * mScreenWidth * mScreenHeight);
-            mediaRecorder.setVideoFrameRate(60); //after setVideoSource(), setOutFormat()
-            bitRate = 5 * mScreenWidth * mScreenHeight / 1000;
-        }
-        try {
-            mediaRecorder.prepare();
-        } catch (IllegalStateException | IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        Log.i(TAG, "Audio: " + isAudio + ", SD video: " + isVideoSd + ", BitRate: " + bitRate + "kbps");
-
-        return mediaRecorder;
-    }
-
-    private VirtualDisplay createVirtualDisplay() {
-        Log.i(TAG, "Create VirtualDisplay");
-        return mMediaProjection.createVirtualDisplay(TAG, mScreenWidth, mScreenHeight, mScreenDensity,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mMediaRecorder.getSurface(), null, null);
     }
 
     @Override
     public void onDestroy() {
-        // TODO Auto-generated method stub
         super.onDestroy();
-        Log.i(TAG, "Service onDestroy");
+        Log.i(TAG, "onDestroy");
         if(mVirtualDisplay != null) {
             mVirtualDisplay.release();
             mVirtualDisplay = null;
@@ -130,9 +84,64 @@ public class ScreenRecordService extends Service {
         }
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO Auto-generated method stub
-        return null;
+
+    /**
+     * 获取屏幕相关数据
+     */
+    private void getScreenBaseInfo() {
+        mScreenWidth = ScreenUtils.getScreenWidth(this);
+        mScreenHeight = ScreenUtils.getScreenHeight(this);
+//        mScreenDensity = ScreenUtils.getScreenDensityDpi(this);
+//        mScreenWidth = 100;
+//        mScreenHeight = 200;
+        mScreenDensity =10;
+    }
+
+    private MediaProjection createMediaProjection() {
+        Log.i(TAG, "Create MediaProjection");
+        return ((MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE)).getMediaProjection(mResultCode, mResultData);
+    }
+
+
+    private MediaRecorder createMediaRecorder() {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        Date curDate = new Date(System.currentTimeMillis());
+        String curTime = formatter.format(curDate).replace(" ", "");
+        String videoQuality = "HD";
+        if (isVideoSd) videoQuality = "SD";
+
+        Log.i(TAG, "Create MediaRecorder");
+        MediaRecorder mediaRecorder = new MediaRecorder();
+//        if(isAudio) mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mediaRecorder.setOutputFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/" + videoQuality + curTime + ".mp4");
+        mediaRecorder.setVideoSize(mScreenWidth, mScreenHeight);  //after setVideoSource(), setOutFormat()
+        mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);  //after setOutputFormat()
+//        if(isAudio) mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);  //after setOutputFormat()
+        int bitRate;
+        if (isVideoSd) {
+            mediaRecorder.setVideoEncodingBitRate(mScreenWidth * mScreenHeight);
+            mediaRecorder.setVideoFrameRate(30);
+            bitRate = mScreenWidth * mScreenHeight / 1000;
+        } else {
+            mediaRecorder.setVideoEncodingBitRate(5 * mScreenWidth * mScreenHeight);
+            mediaRecorder.setVideoFrameRate(60); //after setVideoSource(), setOutFormat()
+            bitRate = 5 * mScreenWidth * mScreenHeight / 1000;
+        }
+        try {
+            mediaRecorder.prepare();
+        } catch (IllegalStateException | IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return mediaRecorder;
+    }
+
+    private VirtualDisplay createVirtualDisplay() {
+        Log.i(TAG, "Create VirtualDisplay");
+        return mMediaProjection.createVirtualDisplay(TAG, mScreenWidth, mScreenHeight, mScreenDensity,
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mMediaRecorder.getSurface(), null, null);
     }
 }
