@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "526752859344",
+    "firebase_url": "https://lookabrush.firebaseio.com",
+    "project_id": "lookabrush",
+    "storage_bucket": "lookabrush.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:526752859344:android:351c990ec50daac709cad5",
+        "android_client_info": {
+          "package_name": "com.example.lookabrush"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "526752859344-863pdt9db976hp4sf8ra9m94bcq24s52.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2UUvwENOcxEoSrzEuaNiIXHKb1ue6ocw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "526752859344-863pdt9db976hp4sf8ra9m94bcq24s52.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

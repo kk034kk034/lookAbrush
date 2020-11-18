@@ -34,6 +34,8 @@ public class ScreenRecordService extends Service {
     private MediaProjection mMediaProjection;
     private MediaRecorder mMediaRecorder;
     private VirtualDisplay mVirtualDisplay;
+    //2020.11.16 確認mediaRecorder.setOutputFile裡面是不是放我要的影片路徑
+
 
     public ScreenRecordService() {
     }
@@ -105,8 +107,12 @@ public class ScreenRecordService extends Service {
 
     private MediaRecorder createMediaRecorder() {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+
         Date curDate = new Date(System.currentTimeMillis());
         String curTime = formatter.format(curDate).replace(" ", "");
+        //2020.11.16
+        String filename = formatter.format(new Date());
+
         String videoQuality = "HD";
         if (isVideoSd) videoQuality = "SD";
 
@@ -115,7 +121,22 @@ public class ScreenRecordService extends Service {
 //        if(isAudio) mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        mediaRecorder.setOutputFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/" + videoQuality + curTime + ".mp4");
+
+//        mediaRecorder.setOutputFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/" + videoQuality + curTime + ".mp4"); //存影片路徑嗎?
+        mediaRecorder.setOutputFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + filename + ".mp4");
+//        Log.e("20201116","影片路徑嗎? >> ", filename);
+
+//        File tempFile = new File(Environment.getExternalStorageDirectory(), filename + ".mp4");
+//        Uri VideoUri = getVideoContentUri(tempFile);
+
+//        // File or Blob
+//        Uri file = Uri.fromFile(new File(Environment.getExternalStorageDirectory(), filename + ".mp4"));
+//        // Create the file metadata
+//        metadata = new StorageMetadata.Builder().setContentType("video/mp4").build(); //Type("image/jpeg")
+//        // Upload file and metadata to the path 'images/mountains.jpg'
+//        uploadTask = storageRef.child("video/"+file.getLastPathSegment()).putFile(file, metadata);
+
+
         mediaRecorder.setVideoSize(mScreenWidth, mScreenHeight);  //after setVideoSource(), setOutFormat()
         mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);  //after setOutputFormat()
 //        if(isAudio) mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);  //after setOutputFormat()

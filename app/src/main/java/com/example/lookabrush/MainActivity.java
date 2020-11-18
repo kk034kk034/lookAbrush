@@ -13,13 +13,20 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 /**
  * @author by talon, Date on 19/6/23.
  * note:
+ * [两个类实现Android录制屏幕功能](https://blog.csdn.net/u011368551/article/details/93798251)
  */
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE = 1;
     private MediaProjectionManager mMediaProjectionManager;
+
+    private StorageReference mStorageRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
         checkPermission(this); //检查权限
 
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
+        
+        mStorageRef = FirebaseStorage.getInstance().getReference();
     }
 
     public void StartRecorder(View view) {
@@ -38,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
     public void StopRecorder(View view){
         Intent service = new Intent(this, ScreenRecordService.class);
         stopService(service);
+        //2020.11.16 upload a file by firebase.
+//        uploadTask = storageRef.child("video/"+file.getLastPathSegment()).putFile(file, metadata);
+//        UploadTask.putFile();
+
     }
 
 
@@ -86,4 +99,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+    //2020.11.16 upload a file by firebase.
+    private void UploadTask(uri_file){
+
+        Uri file = Uri.fromFile(new File("path/to/images/rivers.jpg"));
+        StorageReference riversRef = mStorageRef.child("images/rivers.jpg");
+
+        riversRef.putFile(file)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        // Get a URL to the uploaded content
+                        Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle unsuccessful uploads
+                        // ...
+                    }
+                });
+
+        // File or Blob
+        Uri file = Uri.fromFile(new File(Environment.getExternalStorageDirectory(), filename + ".mp4"));
+        // Create the file metadata
+        metadata = new StorageMetadata.Builder().setContentType("video/mp4").build(); //Type("image/jpeg")
+        // Upload file and metadata to the path 'images/mountains.jpg'
+        uploadTask = storageRef.child("video/"+file.getLastPathSegment()).putFile(file, metadata);
+    }
+    **/
 }

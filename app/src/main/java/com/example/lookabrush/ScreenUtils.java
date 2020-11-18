@@ -11,6 +11,10 @@ import android.view.WindowManager;
 //获得屏幕相关的辅助类
 public class ScreenUtils
 {
+    /**
+     * [Android 开发的常用工具类（一）——ScreenUtils 可用于获取屏幕宽高，截屏的工具类]
+     * (https://blog.csdn.net/liujiaoruiIT/article/details/49071509)
+     */
     private ScreenUtils()
     {
         /* cannot be instantiated */
