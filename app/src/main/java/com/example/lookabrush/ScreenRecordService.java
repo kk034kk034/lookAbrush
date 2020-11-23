@@ -12,6 +12,7 @@ import android.media.projection.MediaProjectionManager;
 import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -124,8 +125,8 @@ public class ScreenRecordService extends Service {
 
 //        mediaRecorder.setOutputFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/" + videoQuality + curTime + ".mp4"); //存影片路徑嗎?
         mediaRecorder.setOutputFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + filename + ".mp4");
-//        Log.e("20201116","影片路徑嗎? >> ", filename);
-
+//        Log.i(TAG, "影片路徑嗎? >> ", filename);
+        Toast.makeText(this, filename, Toast.LENGTH_SHORT).show();
 //        File tempFile = new File(Environment.getExternalStorageDirectory(), filename + ".mp4");
 //        Uri VideoUri = getVideoContentUri(tempFile);
 
