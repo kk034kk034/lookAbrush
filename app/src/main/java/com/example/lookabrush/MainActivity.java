@@ -12,7 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -42,7 +42,9 @@ public class MainActivity extends AppCompatActivity {
     private Uri file;
     private UploadTask uploadTask;
 
-    Button button_sele,button_up;
+    ImageButton button_start,button_finish;
+    ImageButton button_sele;
+    ImageButton button_up;
     ImageView imageView;
     Intent intent;
     int PICK_CONTACT_REQUEST=1;
@@ -62,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
         mStorageRef = FirebaseStorage.getInstance().getReference();
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        button_sele = (Button)findViewById(R.id.button);
-        button_up = (Button)findViewById(R.id.button2);
+        button_sele = (ImageButton) findViewById(R.id.button);
+        button_up = (ImageButton)findViewById(R.id.button2);
         imageView = (ImageView)findViewById(R.id.imageView);
 
         button_sele.setOnClickListener(new View.OnClickListener() {
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 intent = new Intent();
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.setType("*/*");
+                intent.setType("video/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(intent,1);
 
@@ -88,15 +90,37 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         Log.i("kate","ok");
+                        Toast.makeText(MainActivity.this, "ok", Toast.LENGTH_SHORT).show();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception exception) {
                         Log.d("kate", "fail");
+                        Toast.makeText(MainActivity.this, "upload fail", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
         });
+
+        /*
+        //20210201
+        button_start = (Button)findViewById(R.id.start);
+        button_finish = (Button)findViewById(R.id.finish);
+        button_start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createScreenCapture();
+            }
+        });
+        button_finish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent service = new Intent(MainActivity.this, ScreenRecordService.class);
+                stopService(service);
+                Toast.makeText(MainActivity.this, "結束側錄", Toast.LENGTH_SHORT).show();
+            }
+        });
+        */
 
     }
 
@@ -110,10 +134,11 @@ public class MainActivity extends AppCompatActivity {
         //2020.11.16 upload a file by firebase.
 //        uploadTask = storageRef.child("video/"+file.getLastPathSegment()).putFile(file, metadata);
 //        UploadTask.putFile();
-        Toast.makeText(this, "結束录屏", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "結束側錄", Toast.LENGTH_SHORT).show();
 //        UploadTask();
 
     }
+
 
     public static void checkPermission(AppCompatActivity activity) {
         if (Build.VERSION.SDK_INT >= 23) {
@@ -146,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i("kate", String.valueOf(requestCode));
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             try {
-                Toast.makeText(this, "允许录屏", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "允許側錄", Toast.LENGTH_SHORT).show();
 
                 Intent service = new Intent(this, ScreenRecordService.class);
                 service.putExtra("resultCode", resultCode);
@@ -157,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         } else {
-            Toast.makeText(this, "拒绝录屏", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "拒絕側錄", Toast.LENGTH_SHORT).show();
         }
 
         //

@@ -97,7 +97,7 @@ public class ScreenRecordService extends Service {
 //        mScreenDensity = ScreenUtils.getScreenDensityDpi(this);
 //        mScreenWidth = 100;
 //        mScreenHeight = 200;
-        mScreenDensity =10;
+        mScreenDensity =100;
     }
 
     private MediaProjection createMediaProjection() {
