@@ -9,10 +9,8 @@ import android.hardware.display.VirtualDisplay;
 import android.media.MediaRecorder;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -36,6 +34,7 @@ public class ScreenRecordService extends Service {
     private MediaRecorder mMediaRecorder;
     private VirtualDisplay mVirtualDisplay;
     //2020.11.16 確認mediaRecorder.setOutputFile裡面是不是放我要的影片路徑
+
 
 
     public ScreenRecordService() {
@@ -122,14 +121,15 @@ public class ScreenRecordService extends Service {
 //        if(isAudio) mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-
 //        mediaRecorder.setOutputFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/" + videoQuality + curTime + ".mp4"); //存影片路徑嗎?
-        mediaRecorder.setOutputFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + filename + ".mp4");
-//        Log.i(TAG, "影片路徑嗎? >> ", filename);
-        Toast.makeText(this, filename, Toast.LENGTH_SHORT).show();
+//        mediaRecorder.setOutputFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + filename + ".mp4");
+
+        String filename_ = "/storage/emulated/0/Brush_"+filename+".mp4";
+        Log.i("kate", "影片路徑存在?>>filename_: " +filename_);
+        mediaRecorder.setOutputFile(filename_);
+
 //        File tempFile = new File(Environment.getExternalStorageDirectory(), filename + ".mp4");
 //        Uri VideoUri = getVideoContentUri(tempFile);
-
 //        // File or Blob
 //        Uri file = Uri.fromFile(new File(Environment.getExternalStorageDirectory(), filename + ".mp4"));
 //        // Create the file metadata
