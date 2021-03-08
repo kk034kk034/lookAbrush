@@ -12,10 +12,12 @@ import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,11 +26,14 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 /**
@@ -59,6 +64,7 @@ public class MainActivity extends Activity {
     String filename_ = "/storage/emulated/0/Brush_"+filename+".mp4";
     //宣布UI用到的
     ImageView imageView;
+    TextView score;
 
 
     @Override
@@ -67,6 +73,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         imageView = (ImageView)findViewById(R.id.imageView);
+        score = (TextView)findViewById(R.id.score);
 
         //螢幕錄影
         mMediaRecorder=new MediaRecorder();
@@ -75,6 +82,8 @@ public class MainActivity extends Activity {
 
         //上傳影片至Firebase
         mStorageRef = FirebaseStorage.getInstance().getReference();
+
+
 
     }
 
@@ -138,7 +147,10 @@ public class MainActivity extends Activity {
         mMediaRecorder.stop();         //停止錄製
         mMediaRecorder.reset();
         this.upload();
+        // 執行python(下載影片+分析+上傳分數)
+        this.brush_score(); //下載分數、讀取並顯示分數
     }
+
     public void upload(){//View v
         Toast.makeText(this, "uploading...until ok.", Toast.LENGTH_LONG).show();
         // "path/to/images/rivers.jpg"
@@ -166,6 +178,54 @@ public class MainActivity extends Activity {
                 });
     }
 
+
+    public void brush_score(){
+        //背景運行偵測score_file_name出現了沒??
+        String score_file_name = "score_Brush_" + filename + ".mp4.txt";
+        StorageReference  islandRef = mStorageRef.child(score_file_name);
+
+        File rootPath = new File(Environment.getExternalStorageDirectory(), "score");
+        if(!rootPath.exists()) {
+            rootPath.mkdirs();
+        }
+
+        final File localFile = new File(rootPath,score_file_name);
+
+        islandRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                Log.i("kate ","local tem file created >> " +localFile.toString());
+                //  updateDb(timestamp,localFile.toString(),position);
+                // 讀取下載的分數
+                try{
+                    //建立FileReader物件，並設定讀取的檔案為SD卡中的output.txt檔案
+                    FileReader fr = new FileReader("/storage/emulated/0/score/"+score_file_name);
+                    //將BufferedReader與FileReader做連結
+                    BufferedReader br = new BufferedReader(fr);
+                    String readData = "";
+                    String temp = br.readLine(); //readLine()讀取一整行
+                    while (temp!=null){
+                        readData+=temp;
+                        temp=br.readLine();
+                    }
+                    score.setText(readData);
+
+
+                }catch(Exception e){
+                    e.printStackTrace();
+                    Log.i("kate ","score show fail.");
+                }
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Log.i("kate ","local tem file not created >> " +exception.toString());
+                brush_score();
+            }
+        });
+
+    }
     //初始化media recorder,AndroidManifest記得給android.permission.RECORD_AUDIO
     private void init_media_recorder() {
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);    //音源
